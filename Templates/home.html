@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GrainPalette - Rice Classification</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: #fff8ef; color: #222; line-height: 1.6; }
+    header { background: #fff3e0; padding: 2rem; text-align: center; }
+    header h1 { font-size: 3rem; color: #bf360c; }
+    header h2 { font-size: 1.4rem; color: #7c4200; margin-top: 0.5rem; }
+    .center-btns { margin-top: 2rem; }
+    .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; margin: 0 1rem; }
+    .start { background: #ef6c00; color: white; }
+    .learn { border: 2px solid #ef6c00; color: #ef6c00; background: white; }
+
+    .features { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 3rem 1rem; background: #fff; }
+    .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.05); flex: 1 1 300px; text-align: center; }
+    .card h3 { margin: 1rem 0 0.5rem; color: #333; }
+    .card p { color: #555; }
+
+    .section { padding: 4rem 0rem; text-align: center; }
+    .section h2 { font-size: 2rem; margin-bottom: 2rem; color: #1a1a1a; }
+    .upload-box { background: white; border: 2px dashed #ccc; padding: 3rem; margin: auto; width: 600px; border-radius: 15px; }
+    .upload-box input[type="file"] { margin-top: 1rem; }
+
+    .result { background: #e8f5e9; padding: 1rem; border-radius: 8px; color: #2e7d32; margin-top: 1rem; display: none; }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; justify-content: center; max-width: 1000px; margin: 0 auto; }
+    .rice-card { background: white; border-radius: 10px; padding: 1.5rem; border-top: 5px solid #ccc; }
+    .rice-card h3 { margin-top: 1rem; color: #333; }
+    .rice-card ul { text-align: left; margin-top: 1rem; padding-left: 1rem; }
+
+    .model-boxes { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 2rem; padding: 2rem; max-width: 1100px; margin: 0 auto; }
+    .model-box { background: #ffffff; padding: 2rem; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease; }
+    .model-box:hover { transform: translateY(-5px); }
+    .model-box h3 { color: #ef6c00; margin-bottom: 1rem; }
+    .model-box p { color: #444; font-size: 0.95rem; line-height: 1.5; }
+    .highlight { color: #ef6c00; font-weight: bold; }
+
+    footer { background: #2c2c2c; color: white; text-align: center; padding: 2rem; margin-top: 3rem; }
+    footer .footer-cols { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 2rem; }
+    footer h4 { color: #ffa726; margin-bottom: 1rem; }
+    footer ul { list-style: none; padding: 0; }
+    footer ul li { margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <header><br><br>
+    <h1>GrainPalette</h1>
+    <h2>AI-Powered Rice Grain Classification</h2>
+    <p>Upload an image of rice grains and let our advanced Convolutional Neural Network classify them into one of five distinct types with precision and speed.</p>
+    <div class="center-btns">
+      <a class="btn start" href="#upload">Start Classification</a>
+      <a class="btn learn" href="#learn">Learn More</a>
+    </div>
+  </header>
+    <br><br>
+  <section class="features">
+    <div class="card">
+      <h3>🤖 Deep Learning</h3>
+      <p>Advanced CNN model trained on thousands of rice grain images</p>
+    </div>
+    <div class="card">
+      <h3>🍚 5 Rice Types</h3>
+      <p>Classify Arborio, Basmati, Ipsala, Jasmine, and Karacadag varieties</p>
+    </div>
+    <div class="card">
+      <h3>⚡ Real-time</h3>
+      <p>Instant predictions with high accuracy and confidence scores</p>
+    </div>
+  </section>
+  <br><br>
+  
+
+  <section class="section" id="upload">
+  <h2>Upload & Classify</h2>
+  <form class="upload-box" action="/predict#upload" method="POST" enctype="multipart/form-data">
+    <p>Select a rice grain image to classify:</p>
+    <input type="file" name="file" accept="image/*" onchange="previewImage(event)" required />
+
+    <!-- Live Preview (Before Submit) -->
+    <img id="preview" src="#" alt="Preview will appear here" style="display:none; margin-top:1rem;" />
+
+    <!-- Server-side Rendered Image After Prediction -->
+    {% if filename %}
+  <img src="{{ url_for('uploaded_file', filename=filename) }}" alt="Uploaded Image" style="margin-top: 1rem; max-width: 200px;">
+{% endif %}
+
+    <!-- Show Prediction Result -->
+    <!-- Prediction Result -->
+    {% if prediction %}
+      <div class="result" style="display:block;">
+        <h3>Predicted Rice Type: <strong>{{ prediction }}</strong></h3>
+        <p>Confidence: {{ confidence }}%</p>
+      </div>
+    {% endif %}
+
+
+    <br>
+    <button class="btn" type="submit" style="margin-top:1rem;">Classify</button>
+  </form>
+</section>
+
+
+
+  
+
+  <section class="section" id="learn">
+    <h2>Rice Varieties We Classify</h2>
+    <div class="cards">
+      <div class="rice-card" style="border-top-color:#3f51b5">
+        <h3>Arborio</h3>
+        <p><em>Italy</em></p>
+        <p>Short-grain rice perfect for risotto, known for its creamy texture and ability to absorb flavors.</p>
+        <ul><li>High starch content</li><li>Creamy when cooked</li><li>Pearl-like appearance</li></ul>
+      </div>
+      <div class="rice-card" style="border-top-color:#4caf50">
+        <h3>Basmati</h3>
+        <p><em>India/Pakistan</em></p>
+        <p>Long-grain aromatic rice with a distinctive nutty flavor and fluffy texture.</p>
+        <ul><li>Long, slender grains</li><li>Aromatic fragrance</li><li>Non-sticky when cooked</li></ul>
+      </div>
+      <div class="rice-card" style="border-top-color:#9c27b0">
+        <h3>Ipsala</h3>
+        <p><em>Turkey</em></p>
+        <p>Medium-grain rice variety known for excellent cooking quality.</p>
+        <ul><li>Medium grain size</li><li>Good absorption</li><li>Versatile cooking uses</li></ul>
+      </div>
+      <div class="rice-card" style="border-top-color:#ff9800">
+        <h3>Jasmine</h3>
+        <p><em>Thailand</em></p>
+        <p>Long-grain rice with a floral aroma, soft texture, and slightly sticky consistency when cooked.</p>
+        <ul><li>Soft, fluffy texture</li><li>Fragrant aroma</li><li>Excellent for stir-fried dishes</li></ul>
+      </div>
+      <div class="rice-card" style="border-top-color:#795548">
+        <h3>Karacadag</h3>
+        <p><em>Turkey</em></p>
+        <p>Traditional Turkish rice variety, slightly larger grains with good absorption and nutty flavor.</p>
+        <ul><li>Larger grain size</li><li>Rich, nutty taste</li><li>Popular in Turkish pilafs</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Model Architecture</h2>
+    <div class="model-boxes">
+      <div class="model-box">
+        <h3>CNN Architecture</h3>
+        <p><span class="highlight">Input Layer:</span> 224x224x3</p>
+        <p><span class="highlight">Convolutional Layers:</span> 32 → 64 </p>
+        <p><span class="highlight">Pooling Layers:</span> MaxPool 2x2</p>
+        <p><span class="highlight">Dense Layers:</span> 128 → 5 </p>
+        <p><span class="highlight">Output:</span> Softmax(5)</p>
+      </div>
+      <div class="model-box">
+        <h3>Technology Stack</h3>
+        <p> TensorFlow/Keras (Deep Learning)</p>
+        <p> Flask (Backend API)</p>
+        <p> Kaggle Dataset (Training Data)</p>
+      </div>
+      <div class="model-box">
+        <h3>Training Details</h3>
+        <p> 10,000+ Images</p>
+        <p>Accuracy: 97.2%</p>
+        <p> Optimizer: Adam</p>
+      </div>
+      
+  </section>
+
+  <footer>
+    <div class="footer-cols">
+      <div>
+        <h4>Technologies</h4>
+        <ul>
+          <li>TensorFlow & Keras</li>
+          <li>Convolutional Neural Networks</li>
+          <li>Flask Backend API</li>
+          <li>Responsive Web Design</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Features</h4>
+        <ul>
+          <li>Real-time Classification</li>
+          <li>95%+ Accuracy Rate</li>
+          <li>5 Rice Varieties</li>
+          <li>Mobile Responsive</li>
+        </ul>
+      </div>
+    </div>
+    <p>&copy; Gowthami Nanapollu 2025 GrainPalette. All rights reserved.</p>
+  </footer>
+
+ <script>
+    function previewImage(event) {
+      const preview = document.getElementById('preview');
+      preview.src = URL.createObjectURL(event.target.files[0]);
+      preview.style.display = 'block';
+    }
+  </script>
+
+</body>
+
+<!-- Auto-scroll to upload section after prediction -->
+{% if anchor %}
+<script>
+  window.onload = function () {
+    window.location.hash = "#{{ anchor }}";
+  }
+</script>
+{% endif %}
+
+</html>
